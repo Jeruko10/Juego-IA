@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://tytjfp0a04oh"]
+
+[ext_resource type="Script" uid="uid://dq36qu2o3hfpu" path="res://Scripts/Components/Miscelanous/Grid2D.cs" id="1_r150o"]
+
+[node name="Main" type="Node2D"]
+
+[node name="Grid2D" type="Node2D" parent="."]
+script = ExtResource("1_r150o")
+metadata/_custom_type_script = "uid://dq36qu2o3hfpu"
