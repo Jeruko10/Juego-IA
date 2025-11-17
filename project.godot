@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="AI Game 2"
+config/name="Juego IA 2"
 run/main_scene="uid://tytjfp0a04oh"
 config/features=PackedStringArray("4.5", "C#", "Forward Plus")
 config/icon="res://Sprites/icon.svg"
