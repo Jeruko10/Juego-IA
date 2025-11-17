@@ -3,35 +3,39 @@ using System.Collections.Generic;
 
 namespace Game;
 
-public partial class VirtualInputProvider : Node2D, IInputProvider
+public partial class VirtualInputProvider : Node, IInputProvider
 {
     readonly Queue<Vector2I> queuedLeftClicks = new();
     readonly Queue<Vector2I> queuedRightClicks = new();
     bool passTurnNextFrame = false;
     Vector2I? hoveredCell = null;
 
-    public void SimulateLeftClick(Vector2I cell) => queuedLeftClicks.Enqueue(cell);
-    public void SimulateRightClick(Vector2I cell) => queuedRightClicks.Enqueue(cell);
-    public void SimulateHover(Vector2I? cell) => hoveredCell = cell;
-    public void SimulatePassTurn() => passTurnNextFrame = true;
-
     public Vector2I? GetLeftClickedCell()
     {
-        throw new System.NotImplementedException();
+        if (queuedLeftClicks.Count == 0) return null;
+        return queuedLeftClicks.Dequeue();
     }
 
     public Vector2I? GetRightClickedCell()
     {
-        throw new System.NotImplementedException();
+        if (queuedRightClicks.Count == 0) return null;
+        return queuedRightClicks.Dequeue();
     }
 
-    public Vector2I? GetHoveredCell()
-    {
-        throw new System.NotImplementedException();
-    }
+    public Vector2I? GetHoveredCell() => hoveredCell;
 
     public bool IsTurnPassPressed()
     {
-        throw new System.NotImplementedException();
+        if (passTurnNextFrame)
+        {
+            passTurnNextFrame = false;
+            return true;
+        }
+        return false;
     }
+
+    public void SimulateLeftClick(Vector2I cell) => queuedLeftClicks.Enqueue(cell);
+    public void SimulateRightClick(Vector2I cell) => queuedRightClicks.Enqueue(cell);
+    public void SimulateHover(Vector2I? cell) => hoveredCell = cell;
+    public void SimulatePassTurn() => passTurnNextFrame = true;
 }
