@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Utility;
 
 namespace Components;
-
 public static class AudioManager
 {
     class Audio(AudioStreamPlayer player, float volumeDb)

@@ -27,28 +27,15 @@ public partial class BotInputProvider() : VirtualInputProvider
 
 		await Wait(courtesyDelay);
 
-		if (GetFriendlyMinions().Count <= 4) // Few minions? Spawn some first
-		{
-			List<Vector2I> spawnPositions = [];
-			Vector2I[] allCells = Board.Grid.GetAllCells();
-			int minionAmount = GD.RandRange(4, 10);
-
-			for (int i = 0; i < minionAmount; i++)
-				spawnPositions.Add(allCells.GetRandomElement());
-
-			foreach (Vector2I cell in spawnPositions)
-				await SimulateHumanClick(cell, true);
-		}
+		GoapBot.Waypoint[] waypoints = GoapBot.SetWaypoints();
 
 		foreach (Minion minion in GetFriendlyMinions())
-		{
-			await SimulateHumanClick(minion.Position);
-
-			Vector2I[] minionRange = GridNavigation.GetReachableCells(minion);
-			Vector2I randomCell = minionRange.GetRandomElement();
-
-			await SimulateHumanClick(randomCell, false, 2);
-		}
+        {
+			List<Vector2I> demandedClicks = HfsmBot.GetClicks(waypoints);
+            
+			foreach (Vector2I click in demandedClicks)
+				await SimulateHumanClick(click);
+        }
 
 		SimulatePassTurn();
 	}
