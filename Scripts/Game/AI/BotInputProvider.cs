@@ -13,10 +13,32 @@ public partial class BotInputProvider() : VirtualInputProvider
 	[Export] float playSpeed = 1f;
 	[Export] float courtesyDelay = 1f;
 
-	public override void _Ready() => Board.State.TurnStarted += OnTurnStarted;
+    readonly WaypointsNavigator navigator = new();
 
-	async Task PlayTurn()
+    public override void _Ready()
+    {
+        Board.State.TurnStarted += OnTurnStarted;
+    }
+
+    async Task PlayTurn()
 	{
+		
+		foreach (Minion minion in GetFriendlyMinions())
+		{
+			List<Waypoint> waypoints = navigator.GenerateWaypoints(minion);
+		}
+
+		if (GetFriendlyMinions().Count != 0)
+        {
+			foreach (Waypoint wp in navigator.GenerateWaypoints(GetFriendlyMinions()[0]))
+			{
+				GD.Print($"Waypoint: Type={wp.Type}, Cell={wp.Cell}, ElementAffinity={wp.ElementAffinity}, Priority={wp.Priority}");
+				Board.State.AddWaypoint(wp);
+			}
+        }
+			
+
+
 		// USE THESE INPUT SIMULATION METHODS TO CONTROL THE BOT:
 		//
 		// SimulateHover(Vector2I?);
@@ -27,16 +49,33 @@ public partial class BotInputProvider() : VirtualInputProvider
 
 		await Wait(courtesyDelay);
 
-		GoapBot.Waypoint[] waypoints = GoapBot.SetWaypoints();
+		if (GetFriendlyMinions().Count <= 4) // Few minions? Spawn some first
+		{
+			List<Vector2I> spawnPositions = [];
+			Vector2I[] allCells = Board.Grid.GetAllCells();
+			int minionAmount = GD.RandRange(4, 10);
+
+			for (int i = 0; i < minionAmount; i++)
+				spawnPositions.Add(allCells.GetRandomElement());
+
+			foreach (Vector2I cell in spawnPositions)
+				await SimulateHumanClick(cell, true);
+		}
 
 		foreach (Minion minion in GetFriendlyMinions())
-        {
-			List<Vector2I> demandedClicks = HfsmBot.GetClicks(waypoints);
-            
-			foreach (Vector2I click in demandedClicks)
-				await SimulateHumanClick(click);
-        }
+		{
+			await SimulateHumanClick(minion.Position);
 
+			Vector2I[] minionRange = GridNavigation.GetReachableCells(minion);
+			
+			if (minionRange.IsEmpty()) continue;
+
+			Vector2I randomCell = minionRange.GetRandomElement();
+
+			await SimulateHumanClick(randomCell, false, 2);
+		}
+		//todo: implement this
+		//navigator.ClearWaypoints();
 		SimulatePassTurn();
 	}
 
